@@ -1,7 +1,7 @@
 version: "3"
 services:
  app:
-   container_name: zaninAppSpese
+   container_name: zaninAppSpese2
    build: .
    command: nodemon --watch /usr/src/app -e js app.js
    ports:
@@ -11,7 +11,7 @@ services:
    links:
      - "mongo:mongosrv"
  mongo:
-   container_name: zaninMongo
+   container_name: zaninMongo2
    image: mongo
    volumes:
      - ./data:/data/db

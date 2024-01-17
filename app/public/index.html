@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="index" author="Giovanni Zanin">
+    <title>BudgetManager</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="assets/js/app.js" defer></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/style.css"/>
+</head>
+<body>
+  <h1>BudgetManager</h1>
+    <div id="app">
+      <div v-if="showAlert" id="alert">
+        {{alertMessage}}
+        <button @click="closeAlert">Chiudi</button>
+      </div>
+        <div v-if="authenticated">
+          <!-- Tabella del budget -->
+          <section id="transitionTableAndRelativeButtons" v-if="viewTransitionsTable">
+            <h3>Le tue spese</h3>
+          <table id="transitions_table">
+            <tr>
+                <th>ID</th>
+                <th>Categoria</th>
+                <th>Pagato da</th>
+                <th>Totale</th>
+                <th>Data</th>
+            </tr>
+            <tr v-for="transition in transitions" @click.prevent="showExpenseDetails(transition)" :key="transition.id">
+              <td>{{ transition.id }}</td>
+              <td>{{ transition.category }}</td>
+              <td>{{ transition.buyer }}</td>
+              <td>{{ transition.totalPrice.toFixed(2) + "€"}}</td>
+              <td>{{ formatDate(transition.date) }}</td>
+            </tr>
+          </table>
+          <section id="expenseSearcher">
+          <form id="searchExpense_form" @submit.prevent="searchExpenses">
+            
+            <label for="expenseQuery">Cerca spesa per categoria:</label>
+            <input type="text" v-model="expenseQuery" id="expenseQuery" />
+            <input type="submit" value="Cerca"/>
+          </form>
+          <button type="button" @click="getAllExpenses">
+            Vedi tutte
+          </button>
+        </section>
+
+          <section id=" filterButtonAndForm">
+            <button type="button" @click="showFilterForm">
+            Filtra per mese e anno
+          </button>
+          <section v-if="viewFilterForm">
+          <form id="filter_form" @submit.prevent="filterTransitions">
+            
+            <label for="monthFilter">Mese:</label>
+            <input type="number" v-model="monthFilter" id="monthFilter" inputmode="numeric"
+            pattern="[0-9]*"
+            min="0"
+            max="12" />
+            <label for="yearFilter">Anno:</label>
+            <input type="number" v-model="yearFilter" id="yearFilter" />
+
+            <input type="submit" value="Filtra"/>
+          </form>
+          <button type="button" @click="getAllExpenses">
+            Rimuovi filtri
+          </button>
+          <button type="button" @click="viewFilterForm=false">
+            Chiudi
+          </button>
+          </section>
+          </section>
+          <section id="newExpenseButtonAndForm">
+            <button type="button" @click="showNewExpenseForm">
+              Aggiungi spesa
+            </button>
+            <section v-if="viewNewExpenseForm">
+            <form id="newExpense_form" @submit.prevent="addExpense" >
+
+              <label for="Date">Data:</label>
+              <input type="date" v-model="date" id="date" />
+              
+              <label for="description">Descrizione:</label>
+              <input type="text" v-model="description" id="description"/>
+              <label for="category">Categoria:</label>
+              <input type="text" v-model="category" id="category"/>
+              <label for="totalCost">€:</label>
+              <input type="number" v-model="totalCost" id="totalCost" step="0.01"/>
+
+              <label for="userList">Da spartire con (ATTENZIONE: Il resto sarà considerato pagato da te.):</label>
+              <div v-for="(user, index) in parts" :key="index">
+                <input type="text" v-model="parts[index].username" :placeholder="'Nome Utente ' + (index + 1)" :id="'userToFind' + index"
+                @input="suggestUsernames(parts[index].username, 'userToFind' + index)"/>
+                <ul v-if="usernameSuggestions['userToFind' + index] && usernameSuggestions['userToFind' + index].length" class="sugg">
+                  <li
+                    v-for="suggestion in usernameSuggestions['userToFind' + index]"
+                    :key="suggestion"
+                    @click="parts[index].username=suggestion, usernameSuggestions['userToFind' + index]=[]"
+                  >
+                    {{ suggestion }}
+                  </li>
+                </ul>
+                <input type="number" v-model="parts[index].amount" :placeholder="'Quota €' + (index + 1)"  step="0.01"/>
+                <button @click="removePart(index)">Rimuovi</button>
+                
+              </div>
+
+              <button @click.prevent="addPart">Aggiungi altra quota</button>
+
+              
+              <input type="submit" value="Conferma"/>
+            </form>
+            <button type="button" @click="viewNewExpenseForm=false">
+              Chiudi
+            </button>
+            </section>
+        </section >
+        
+
+        </section>
+        <section id="expenseDetails" v-if="viewExpenseDetail">
+          <h4>Dettagli spesa</h4>
+          <table>
+            <tr>
+                <th>ID</th>
+                <th>Categoria</th>
+                <th>Descrizione</th>
+                <th>Pagato da</th>
+                <th>Totale</th>
+                <th>Data</th>
+                <th>Quote</th>
+            </tr>
+            <tr>
+              <td>{{ expenseInDetail.id }}</td>
+
+              <td><div v-if="!modifyExpense">{{ expenseInDetail.category }}</div>
+                <div v-if="modifyExpense">
+                <input type="text" v-model="expenseInDetail.category" id="editedCategory"/></div></td>
+
+              <td><div v-if="!modifyExpense">{{ expenseInDetail.description }}</div>
+                <div v-if="modifyExpense">
+                <input type="text" v-model="expenseInDetail.description" id="editedDescription"/></div></td>
+
+              <td>{{ expenseInDetail.buyer }}</td>
+
+              <td><div v-if="!modifyExpense">{{ expenseInDetail.totalPrice.toFixed(2) + "€" }}</div>
+                <div v-if="modifyExpense">
+                  <input type="number" v-model="expenseInDetail.totalPrice" id="editedTotalCost" step="0.01"/></div></td>
+
+              <td>{{ formatDate(expenseInDetail.date) }}</td>
+
+              <td>
+                <div v-if="!modifyExpense">
+                <ul>
+                  <li v-for="part in expenseInDetail.users">
+                    {{ part.username +": "+ part.amount.toFixed(2) + "€" }}
+                  </li>
+                </ul>
+                </div>
+                <div v-if="modifyExpense">
+                  <div v-for="(user, index) in expenseInDetail.users" :key="index">
+                    <input type="text" v-model="expenseInDetail.users[index].username" :placeholder="'Nome Utente ' + (index + 1)" :id="'userToFindEdit' + index"
+                    @input="suggestUsernames(expenseInDetail.users[index].username, 'userToFindEdit' + index)"/>
+                    <ul v-if="usernameSuggestions['userToFindEdit' + index] && usernameSuggestions['userToFindEdit' + index].length" class="sugg">
+                      <li
+                        v-for="suggestion in usernameSuggestions['userToFindEdit' + index]"
+                        :key="suggestion"
+                        @click="expenseInDetail.users[index].username=suggestion, usernameSuggestions['userToFindEdit' + index]=[]"
+                      >
+                        {{ suggestion }}
+                      </li>
+                    </ul>
+                    <input type="number" v-model="expenseInDetail.users[index].amount" :placeholder="'Quota €' + (index + 1)"  step="0.01"/>
+                    <button @click="removePartFromDetail(index)">Rimuovi</button>    
+                  </div>
+                  <button @click.prevent="addPartToDetail">Aggiungi altra quota</button>
+                </div>
+              </td>
+
+              <td v-if="modifyExpense">
+                <button @click="confirmEdit">Conferma</button>
+              </td>
+            
+            </tr>
+          </table>
+          <button @click="backToTransactionsFromDetails">Indietro</button>
+          <button @click="deleteExpense">Elimina spesa</button>
+          <button @click="editExpense">Modifica spesa</button>
+
+        </section>
+        <aside id="userSpace">
+          <h5>User</h5>
+          <section id="myInfo">
+            <button @click="showInfo">
+              Informazioni su di me
+            </button>
+            <section id="visibleInfo" v-if="viewInfo">
+              {{"Ciao " + firstName + " " + lastName + ", alias " + username + ", ecco i tuoi debiti:"}}
+              <ul>
+                <li v-for="debt in debts">
+                  {{debt.debtor+ ": " + debt.amount.toFixed(2) +"€"}}
+                </li>
+              </ul>
+              <button @click="closeInfo">Chiudi</button>
+
+            </section>
+          </section>
+          <section id="searchUser">
+            <form id="searchUser_form" @submit.prevent="searchUser" >
+              
+              <label for="userToFind">Cerca utente</label>
+              <input type="text" v-model="usernameToFind" id="userToSearch"
+              @input="suggestUsernames(usernameToFind, 'userToSearch')"/>
+              <ul v-if="usernameSuggestions['userToSearch'] && usernameSuggestions['userToSearch'].length" class="sugg">
+                <li
+                  v-for="suggestion in usernameSuggestions['userToSearch']"
+                  :key="suggestion"
+                  @click="usernameToFind=suggestion, usernameSuggestions['userToSearch']=[]"
+                >
+                  {{ suggestion }}
+                </li>
+              </ul>
+              
+              <input type="submit" value="Cerca"/>
+            </form>
+            <section id="visibleOtherUser" v-if="viewOtherUser">
+              {{"Il tuo debito nei confronti di " + userToShow.firstName + " " + userToShow.lastName + ", alias " + userToShow.username + ", è:" + balanceToShow.toFixed(2) +"€"}}
+            
+              <button @click="viewOtherUser=false">Chiudi</button>
+
+            </section>
+          </section>
+          <section id="logout">
+            <button @click="logout">Logout</button>
+          </section>
+        </aside>
+        </div>
+        <div v-else>
+          <!-- Modulo di signup -->
+          <section id="loginSection">
+            <h4>Login</h4>
+          <form id="signin_form" @submit.prevent="login">
+            <label for="username">Username:</label>
+            <input type="text" v-model="username" id="username" />
+            <label for="password">Password:</label>
+            <input type="password" v-model="password" id="password"/>
+            <input type="submit" value="Login"/>
+          </form>
+        </section>
+
+
+
+        <section id="signupSection"> 
+          Se non sei ancora registrato puoi farlo qui
+        <form id="signup_form" @submit.prevent="signup">
+            <label for="new_username">Username:</label>
+            <input type="text" v-model="new_username" id="new_username" />
+            <label for="new_password">Password:</label>
+            <input type="password" v-model="new_password" id="new_password"/>
+            <label for="new_firstName">Nome:</label>
+            <input type="text" v-model="firstName" id="new_firstName" />
+            <label for="new_lastName">Cognome:</label>
+            <input type="text" v-model="lastName" id="new_lastName"/>
+            <input type="submit" value="Registrati"/>
+          </form>
+        </section> 
+        </div>
+      </div>
+</body>
+</html>
+

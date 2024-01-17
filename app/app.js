@@ -4,22 +4,31 @@ const { MongoClient } = require('mongodb');
 const session = require('express-session');
 const uri = 'mongodb://mongo:27017';
 const app = express();
-////creazione client
 const client = new MongoClient(uri);
 let db = null;
 
 app.use(express.static(`${__dirname}/public`));
 app.use(express.json());
-app.use(express.urlencoded());/////////////dubbio
+app.use(express.urlencoded());
 app.use(session({
     secret: 'segreto',
     resave: false
 }));
 
+////////script per inserire user e spese iniziali nel database 
+///(tutte le password sono "abc" e tutti gli username coincidono con il firstName)
+await db.collection("users").insertOne({username: "Giovanni", password: "abc", firstName: "Giovanni", lastName: "Zanin"});
+await db.collection("users").insertOne({username: "Giorgia", password: "abc", firstName: "Giorgia", lastName: "Rossi"});
+await db.collection("users").insertOne({username: "Enrico", password: "abc", firstName: "Enrico", lastName: "Zanin"});
+await db.collection("users").insertOne({username: "Giuseppe", password: "abc", firstName: "Giuseppe", lastName: "Verdi"});
+await db.collection("users").insertOne({username: "Anna", password: "abc", firstName: "Anna", lastName: "Blu"});
+await db.collection("users").insertOne({username: "Andrea", password: "abc", firstName: "Andrea", lastName: "Bianchi"});
+await db.collection("users").insertOne({username: "Mauro", password: "abc", firstName: "Mauro", lastName: "Gialli"});
+await db.collection("users").insertOne({username: "Serena", password: "abc", firstName: "Serena", lastName: "Arancio"});
+
+
+/////////////////fine script di inizializzazione
 app.post('/api/auth/signin', async (req, res) => {  	
-    //const client = new MongoClient(uri);
-    //await client.connect();
-    //const users = client.db("users");
     const db_user = await db.collection("users").findOne({username: req.body.username});
     if(db_user && db_user.password === req.body.password){
         req.session.username = req.body.username;

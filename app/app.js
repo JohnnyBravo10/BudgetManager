@@ -4,7 +4,7 @@ const { MongoClient } = require('mongodb');
 const session = require('express-session');
 const uri = 'mongodb://mongo:27017';
 const app = express();
-
+////creazione client
 const client = new MongoClient(uri);
 let db = null;
 

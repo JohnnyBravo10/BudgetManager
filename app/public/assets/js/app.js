@@ -374,7 +374,7 @@ const app = createApp({
         username = this.usernameToFind;
         const response= await(await fetch(`/api/users/search?q=${username}`)).json();
         console.log("User trovato:", response)
-        if (response== null){
+        if (response.user== null){
           this.showAlert=true;
           this.alertMessage="Utente non trovato"
         }

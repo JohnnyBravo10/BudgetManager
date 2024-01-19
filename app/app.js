@@ -17,7 +17,14 @@ app.use(session({
 
 ////////script per inserire user e spese iniziali nel database 
 ///(tutte le password sono "abc" e tutti gli username coincidono con il firstName)
+
+const un=["Giovanni", "Giorgia", "Enrico","Giuseppe","Anna", "Andrea", "Mauro", "Serena"];
+const cat=["Calcetto", "Campeggio", "Spesa", "Vacanza", "Cena"];
+const desc=["Serata tra amici", "Domenica in compagnia", "Fine settimana", "Vacanze di Natale"]
+
+async function initializeUsers(){
 await db.collection("users").insertOne({username: "Giovanni", password: "abc", firstName: "Giovanni", lastName: "Zanin"});
+console.log("Giovanni inserito")
 await db.collection("users").insertOne({username: "Giorgia", password: "abc", firstName: "Giorgia", lastName: "Rossi"});
 await db.collection("users").insertOne({username: "Enrico", password: "abc", firstName: "Enrico", lastName: "Zanin"});
 await db.collection("users").insertOne({username: "Giuseppe", password: "abc", firstName: "Giuseppe", lastName: "Verdi"});
@@ -25,6 +32,51 @@ await db.collection("users").insertOne({username: "Anna", password: "abc", first
 await db.collection("users").insertOne({username: "Andrea", password: "abc", firstName: "Andrea", lastName: "Bianchi"});
 await db.collection("users").insertOne({username: "Mauro", password: "abc", firstName: "Mauro", lastName: "Gialli"});
 await db.collection("users").insertOne({username: "Serena", password: "abc", firstName: "Serena", lastName: "Arancio"});
+
+for (var i =0; i<20; i++){
+
+  let numberOfParts = Math.floor(Math.random() * 5 + 1);
+
+  
+  
+  let usernamePortionsMap = {};
+    for (let j = 0; j < numberOfParts; j++) {
+      const username = un[Math.floor(Math.random() * un.length)];
+      
+      const portion = (Math.floor(Math.random() * 10000))/100; 
+         
+      if (!usernamePortionsMap[username]) {
+        usernamePortionsMap[username] = 0;
+      }
+      usernamePortionsMap[username] += portion;
+    }
+    let usernamesAndPortions = Object.keys(usernamePortionsMap).map(username => {
+      return { username: username, amount: usernamePortionsMap[username] };
+    });
+
+
+  let total =0;
+  usernamesAndPortions.forEach(element => {
+    total+= element.amount
+  })
+
+  console.log ("total:", total)
+
+  let new_expense= {
+    id: i,
+    buyer: un[Math.floor(Math.random() * un.length)],
+    date:new Date((Math.floor(Math.random() * 3 + 2021)), (Math.floor(Math.random() * (11))), (Math.floor(Math.random() * (28)+1))).toString(),
+    description:desc[Math.floor(Math.random() * desc.length)],
+    category:cat[Math.floor(Math.random() * cat.length)],
+    totalPrice:Number(total),
+    users: usernamesAndPortions    
+};
+
+await db.collection("transitions").insertOne(new_expense);
+
+}
+};
+
 
 
 /////////////////fine script di inizializzazione
@@ -275,7 +327,7 @@ app.get("/api/balance", verify, async (req, res) =>{
 
 app.get("/api/budget/search", verify, async (req, res) => {
   console.log("inoltrato a budget/search");
-  const query = req.query.q;
+  const query = req.query.q.toLowerCase();
   console.log("query arrivata:", query)
   let trans = await db.collection("transitions").find({
       $or: [
@@ -285,7 +337,7 @@ app.get("/api/budget/search", verify, async (req, res) => {
   }).toArray();
   t=[]
   trans.forEach((element)=> {
-    if (element.category.startsWith(query)){
+    if (element.category.toLowerCase().startsWith(query)){
     t.push(element)
   }})
   res.json({transitions: t, authenticated:true});
@@ -378,4 +430,5 @@ app.listen(3000, async () => {
     await client.connect();
     console.log("connesso")
     db = client.db("expenses");
+    initializeUsers();
 });

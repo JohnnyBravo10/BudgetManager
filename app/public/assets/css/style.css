@@ -4,6 +4,7 @@ aside {
     grid-area: laterale;
     background-color: #273E47;
     padding: 20px;
+    margin-left: 10px;
 }
 
 body {
@@ -11,15 +12,19 @@ body {
     margin: 2%; 
 }
 
+#transactionTable{
+  height: 350px;
+  overflow-y: auto;
+}
+
 table {
-      width: 70%; 
-    }
+  width: 90%; 
+}
 
   .home__title{
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   font-weight: 700;
-  margin: 30px 0;
-  color: #273E47;
+  margin: 30px;
   }
 
 header{
@@ -44,20 +49,25 @@ header{
   }
 
   #main-portion{
-    grid-area: principale;
+    grid-area: principale; 
   }
 
   .container {
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: left;
       height: 100%; 
     }
 
   .home__title {
       margin: 0; 
+      margin-left: 5%;
     }
   
+  .aside-element {
+      margin-bottom: 20px; 
+      
+    }
   
   tr:nth-child(odd) {
     background-color: #B39463; 
@@ -67,27 +77,62 @@ header{
     background-color:  #F5F0F6; 
   }
 
-  .accordion-item{
+  .transparentBG{
+    background-color: #F5F0F6;
+  }
+
+  #vediInfo{
     background-color:  #F5F0F6;
   }
 
+.accordion-body{
+  background-color:  #F5F0F6;
+}
+
 .btn {
-  margin: 10px 0;
+  margin: 10px;
 }
 
 #authenticatedPage{
   display: grid;
-	
   grid-template-columns: 3fr 1fr;
-	
-  grid-template-areas:
-	
-    "principale laterale"; 
+  grid-template-areas: "principale laterale"; 
+}
+
+#transactionButtons{
+  display: grid;	
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 10px;
+}
+
+#searchExpenseSpace{
+  display: grid;	
+  grid-template-rows: 1fr 1fr 1fr 1fr;
+  row-gap: 5px;
+
+}
+
+td, th {
+    padding: 5px;
+    
+  }
+
+#filterSpace{
+  display: grid;	
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+  row-gap: 5px;
+
+}
+
+#newExpenseSpace {
+  display: grid;
+  grid-template-rows: repeat(mincontent, 6);
+  row-gap: 5px;
 }
 
 .colored-text {
-      color: #F5F0F6; /* Sostituisci con il tuo colore desiderato */
-    }
+      color: #F5F0F6; 
+}
 
 button{
   margin: 1%;
@@ -97,16 +142,24 @@ input{
   margin:1%;
 }
 
-.btn-bd-primary-chiaro {
-  --bs-btn-font-weight: 600;
-  --bs-btn-color: #F5F0F6;
-  --bs-btn-bg: rgba(0, 0, 0, 0);
-  --bs-btn-border-color: rgba(0, 0, 0, 0);
-  --bs-btn-hover-color: #F5F0F6;
-  --bs-btn-hover-bg: #BA7BA1;
-  --bs-btn-hover-border-color: #BA7BA1;
-  --bs-btn-focus-shadow-rgb: rgba(0, 0, 0, 0);;
-  --bs-btn-active-color: #F5F0F6;
-  --bs-btn-active-bg: #BA7BA1;
-  --bs-btn-active-border-color: #BA7BA1;
+.autocomplete-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #ccc;
+  border-top: none;
+  position: absolute;
+  z-index: 1000; 
+  background-color: white; 
 }
+
+.autocomplete-list li {
+  padding: 8px;
+  cursor: pointer;
+  font-size: 80%;
+}
+
+.autocomplete-list li:hover {
+  background-color: #f1f1f1;
+}
+

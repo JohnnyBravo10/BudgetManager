@@ -25,7 +25,9 @@
       <div id="main-portion">
           <!-- Tabella del budget -->
         <section id="transitionTableAndRelativeButtons" v-if="viewTransitionsTable">
+        <div id="transactionTable">
           <h3>Le tue spese</h3>
+          Clicca su una per vederne i dettagli
           <table id="transitions_table">
             <tr>
               <th>ID</th>
@@ -42,92 +44,108 @@
               <td>{{ formatDate(transition.date) }}</td>
             </tr>
           </table>
+          </div>
+          <div id="transactionButtons">
           <section id="expenseSearcher">
-            <form id="searchExpense_form" @submit.prevent="searchExpenses" class="d-flex align-items-end">
-            
-              <label for="expenseQuery">Cerca spesa per categoria:</label>
-              <input type="text" v-model="expenseQuery" id="expenseQuery" class="form-control mr-2" />
-              <button type="submit" class="btn btn-primary">Cerca</button>
-            </form>
-            <button type="button" class="btn btn-outline-info ml-2" @click="getAllExpenses">
-            Vedi tutte
+          <button type="button" v-if="!viewSearchExpenseForm" class="btn btn-outline-secondary" @click="showSearchExpenseForm">
+            Cerca spese
             </button>
+            <section v-if="viewSearchExpenseForm">
+            <form id="searchExpense_form" @submit.prevent="searchExpenses" >
+            <div id="searchExpenseSpace">
+              <div><label for="expenseQuery">Cerca spesa per categoria:</label></div>
+              <div><input type="text" v-model="expenseQuery" id="expenseQuery" class="form-control" /></div>
+              <div><button type="submit" class="btn btn-outline-secondary">Cerca</button>
+              <button type="button" class="btn btn-outline-secondary" @click="getAllExpenses">
+            Vedi tutte
+            </button></div>
+            <div><button type="button" class="btn-close" @click="viewSearchExpenseForm=false">
+              </button></div>
+            </div>
+            </form>
+            </section>
+        
           </section>
 
+
           <section id=" filterButtonAndForm">
-            <button type="button" class="btn btn-outline-info" @click="showFilterForm">
+            <button type="button" v-if="!viewFilterForm" class="btn btn-outline-secondary" @click="showFilterForm">
             Filtra per mese e anno
             </button>
             <section v-if="viewFilterForm">
               <form id="filter_form" @submit.prevent="filterTransitions">
+              <div id="filterSpace">
+              <div>Inserisci anno o mese e anno</div>
             
-                <label for="monthFilter">Mese:</label>
+                <div><label for="monthFilter">Mese:</label>
                 <input type="number" v-model="monthFilter" id="monthFilter" inputmode="numeric"
                 pattern="[0-9]*"
                 min="0"
-                max="12" />
+                max="12" /></div>
+                <div>
                 <label for="yearFilter">Anno:</label>
                 <input type="number" v-model="yearFilter" id="yearFilter" />
+                </div>
 
-                <input type="submit" value="Filtra"/>
-              </form>
-              <button type="button" class="btn btn-outline-info" @click="getAllExpenses">
+                <div><input type="submit" class="btn btn-outline-secondary" value="Filtra"/>
+              
+              <button type="button" class="btn btn-outline-secondary" @click="getAllExpenses">
               Rimuovi filtri
-              </button>
-              <button type="button" class="btn-close" @click="viewFilterForm=false">
-              </button>
+              </button></div>
+              <div><button type="button" class="btn-close" @click="hideFilterForm">
+              </button></div>
+              </div>
+              </form>
             </section>
           </section>
           <section id="newExpenseButtonAndForm">
-            <button type="button" class="btn btn-outline-info" @click="showNewExpenseForm">
+            <button type="button" v-if="!viewNewExpenseForm" class="btn btn-outline-secondary" @click="showNewExpenseForm">
               Aggiungi spesa
             </button>
             <section v-if="viewNewExpenseForm">
               <form id="newExpense_form" @submit.prevent="addExpense" >
+              <div id="newExpenseSpace">
 
-                <label for="Date">Data:</label>
-                <input type="date" v-model="date" id="date" />
+                <div><label for="Date">Data:</label>
+                <input type="date" v-model="date" id="date" /></div>
               
-                <label for="description">Descrizione:</label>
-                <input type="text" v-model="description" id="description"/>
-                <label for="category">Categoria:</label>
-                <input type="text" v-model="category" id="category"/>
-                <label for="totalCost">€:</label>
-                <input type="number" v-model="totalCost" id="totalCost" step="0.01"/>
+                <div><label for="description">Descrizione:</label>
+                <input type="text" v-model="description" id="description"/></div>
+                <div><label for="category">Categoria:</label>
+                <input type="text" v-model="category" id="category"/></div>
+                <div><label for="totalCost">€:</label>
+                <input type="number" v-model="totalCost" id="totalCost" step="0.01"/></div>
 
-                <label for="userList">Da spartire con (ATTENZIONE: La quantità non specificata sarà considerata dovuta a te.):</label>
+                <div><label for="userList">Quote (ATTENZIONE: La quantità non specificata sarà considerata dovuta a te.):</label>
                 <div v-for="(user, index) in parts" :key="index">
-                
-                  <input type="text" class="form-control" v-model="parts[index].username" list="'userToFind' + index +'Datalist'" :placeholder="'Nome Utente ' + (index + 1)" :id="'userToFind' + index"
+                  <input type="text" class="form-control" v-model="parts[index].username" autocomplete="off" list="'userToFind' + index +'Datalist'" :placeholder="'Nome Utente ' + (index + 1)" :id="'userToFind' + index"
                   @input="suggestUsernames(parts[index].username, 'userToFind' + index)"/>
-                  <!--ul v-if="usernameSuggestions['userToFind' + index] && usernameSuggestions['userToFind' + index].length" class="sugg">
-                    <li
-                      v-for="suggestion in usernameSuggestions['userToFind' + index]"
-                      :key="suggestion"
-                      @click="parts[index].username=suggestion, usernameSuggestions['userToFind' + index]=[]"
-                    >
-                      {{ suggestion }}
-                    </li>
-                  </-ul-->
-                  <datalist id="'userToFind' + index +'Datalist'" v-if="usernameSuggestions['userToFind' + index] && usernameSuggestions['userToFind' + index].length">
-                    <option v-for="suggestion in usernameSuggestions['userToFind' + index]"
-                    :key="suggestion" @click.prevent="parts[index].username=suggestion, usernameSuggestions['userToFind' + index]=[]">{{suggestion}}</option>
+                  
+                  <ul id="'userToFind' + index +'Datalist'" v-if="usernameSuggestions['userToFind' + index] && usernameSuggestions['userToFind' + index].length" class="autocomplete-list">
+
+                    <li v-for="suggestion in usernameSuggestions['userToFind' + index]"
+                    :key="suggestion" @click.prevent="parts[index].username=suggestion, usernameSuggestions['userToFind' + index]=[]">{{suggestion}}</li>
     
-                  </datalist>
-                  <input type="number" v-model="parts[index].amount" :placeholder="'Quota €' + (index + 1)"  step="0.01"/>
-                  <button @click.prevent="removePart(index)">Rimuovi</button>
-                
+                  </ul>
+                  <input type="number" v-model="parts[index].amount" :placeholder="'Quota € utente' + (index + 1)"  step="0.01"/>
+                  <button @click.prevent="removePart(index)" class="btn btn-outline-secondary">Rimuovi</button>
                 </div>
+                
 
-                <button @click.prevent="addPart">Aggiungi altra quota</button>
+                <button @click.prevent="addPart" class="btn btn-outline-secondary">Aggiungi altra quota</button>
 
-              
-                <input type="submit" value="Conferma"/>
-              </form>
+              </div>
+                <div><input type="submit" class="btn btn-outline-secondary" value="Conferma"/></div>
+              <div>
             <button type="button" class="btn-close" @click="viewNewExpenseForm=false">
             </button>
+            </div>
+            
+            </div>
+            </form>
           </section>
         </section >
+        </div>
         
 
       </section>
@@ -142,7 +160,7 @@
             <th>Totale</th>
             <th>Data</th>
             <th>Quote</th>
-            <th v-if="!modifyExpense"></th>
+            <th v-if="modifyExpense" class="transparentBG"></th>
           </tr>
           <tr>
             <td>{{ expenseInDetail.id }}</td>
@@ -174,53 +192,43 @@
               <div v-if="modifyExpense">
                 <div v-for="(user, index) in expenseInDetail.users" :key="index">
 
-                  <input type="text" class="form-control" v-model="expenseInDetail.users[index].username" list="'userToFindEdit' + index +'Datalist'" :placeholder="'Nome Utente ' + (index + 1)" :id="'userToFindEdit' + index"
+                  <input type="text" class="form-control" v-model="expenseInDetail.users[index].username" autocomplete="off" list="'userToFindEdit' + index +'Datalist'" :placeholder="'Nome Utente ' + (index + 1)" :id="'userToFindEdit' + index"
                   @input="suggestUsernames(expenseInDetail.users[index].username, 'userToFindEdit' + index)"/>
-                  <!--ul v-if="usernameSuggestions['userToFindEdit' + index] && usernameSuggestions['userToFindEdit' + index].length" class="sugg">
-                    <li
-                    v-for="suggestion in usernameSuggestions['userToFindEdit' + index]"
-                    :key="suggestion"
-                    @click="expenseInDetail.users[index].username=suggestion, usernameSuggestions['userToFindEdit' + index]=[]"
-                    >
-                    {{ suggestion }}
-                    </li>
-                  </!--ul-->
 
-                  <datalist id="'userToFindEdit' + index +'Datalist'" v-if="usernameSuggestions['userToFindEdit' + index] && usernameSuggestions['userToFindEdit' + index].length">
-                    <option v-for="suggestion in usernameSuggestions['userToFindEdit' + index]"
-                    :key="suggestion" @click.prevent="expenseInDetail.users[index].username=suggestion, usernameSuggestions['userToFindEdit' + index]=[]">{{suggestion}}</option>
-        
-                  </datalist>
+                  <ul id="'userToFindEdit' + index +'Datalist'" v-if="usernameSuggestions['userToFindEdit' + index] && usernameSuggestions['userToFindEdit' + index].length" class="autocomplete-list">
+                    <li v-for="suggestion in usernameSuggestions['userToFindEdit' + index]"
+                    :key="suggestion" @click.prevent="expenseInDetail.users[index].username=suggestion, usernameSuggestions['userToFindEdit' + index]=[]">{{suggestion}}</li>
+                  </ul>
                   <input type="number" v-model="expenseInDetail.users[index].amount" :placeholder="'Quota €' + (index + 1)"  step="0.01"/>
-                  <button @click.prevent="removePartFromDetail(index)">Rimuovi</button>    
+                  <button @click.prevent="removePartFromDetail(index)" class="btn btn-outline-dark">Rimuovi</button>    
                 </div>
-                <button @click.prevent="addPartToDetail">Aggiungi altra quota</button>
+                <button @click.prevent="addPartToDetail" class="btn btn-outline-dark">Aggiungi altra quota</button>
               </div>
             </td>
 
-            <td v-if="modifyExpense">
-              <button @click="confirmEdit" class="btn btn-outline-info">Conferma</button>
-              <button @click="modifyExpense=false" class="btn btn-outline-info">Annulla</button>
+            <td v-if="modifyExpense" class="transparentBG">
+              <button @click="confirmEdit" class="btn btn-outline-secondary">Conferma</button>
+              <button @click="modifyExpense=false" class="btn btn-outline-secondary">Annulla</button>
             </td>
             
           </tr>
         </table>
-        <button @click="backToTransactionsFromDetails" class="btn btn-outline-info">Indietro</button>
+        <button @click="backToTransactionsFromDetails" class="btn btn-outline-secondary">Indietro</button>
           
-        <button @click="editExpense" class="btn btn-outline-info">Modifica spesa</button>
+        <button @click="editExpense" class="btn btn-outline-secondary">Modifica spesa</button>
         <button @click="deleteExpense" class="btn btn-outline-danger">Elimina spesa</button>
 
       </section>
       </div>
     
       <aside id="userSpace">
-        <h5><span class="colored-text">User</span></h5>
+        <h4><span class="colored-text">User</span></h4>
 
-        <section id="myInfo">
+        <section id="myInfo" class="aside-element">
           <div class="accordion accordion-flush" id="accordionFlushExample">
             <div class="accordion-item">
               <h3 class="accordion-header">
-                <button class="accordion-button collapsed" type="button" @click="showInfo" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                <button class="accordion-button collapsed" type="button" @click="showInfo" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne" id="vediInfo">
                   Informazioni su di me
                 </button>
               </h3>
@@ -240,54 +248,30 @@
   
         
           
-          <!--section-- id="myInfo">
-            <button @click="showInfo">
-              Informazioni su di me
-            </button>
-            <section id="visibleInfo" v-if="viewInfo">
-              {{"Ciao " + firstName + " " + lastName + ", alias " + username + ", ecco i tuoi debiti:"}}
-              <ul>
-                <li v-for="debt in debts">
-                  {{debt.debtor+ ": " + debt.amount.toFixed(2) +"€"}}
-                </li>
-              </ul>
-              <button @click="closeInfo">Chiudi</button>
-
-            </section>
-          </!--section-->
-        <section id="searchUser">
+          
+        <section id="searchUser" class="aside-element">
           <form id="searchUser_form" @submit.prevent="searchUser" >
               
             <label for="userToFind"><span class="colored-text">Cerca utente</span></label>
-            <input type="text" class="form-control" v-model="usernameToFind" list="searchDatalistOptions" id="userToSearch" @input="suggestUsernames(usernameToFind, 'userToSearch')">
+            <input type="text" class="form-control" v-model="usernameToFind" autocomplete="off" list="searchDatalistOptions" id="userToSearch" @input="suggestUsernames(usernameToFind, 'userToSearch')">
 
-              <!--input type="text" v-model="usernameToFind" id="userToSearch"
-              @input="suggestUsernames(usernameToFind, 'userToSearch')"/-->
-            <datalist id="searchDatalistOptions" v-if="usernameSuggestions['userToSearch'] && usernameSuggestions['userToSearch'].length">
-              <option v-for="suggestion in usernameSuggestions['userToSearch']"
-              :key="suggestion" @click="usernameToFind=suggestion, usernameSuggestions['userToSearch']=[]">{{suggestion}}</option>
+            <ul id="searchDatalistOptions" v-if="usernameSuggestions['userToSearch'] && usernameSuggestions['userToSearch'].length" class="autocomplete-list">
+              <li v-for="suggestion in usernameSuggestions['userToSearch']"
+              :key="suggestion" @click="usernameToFind=suggestion, usernameSuggestions['userToSearch']=[]">{{suggestion}}</li>
   
-            </datalist>
-              <!--ul v-if="usernameSuggestions['userToSearch'] && usernameSuggestions['userToSearch'].length" class="sugg">
-                <li
-                  v-for="suggestion in usernameSuggestions['userToSearch']"
-                  :key="suggestion"
-                  @click="usernameToFind=suggestion, usernameSuggestions['userToSearch']=[]"
-                >
-                  {{ suggestion }}
-                </li>
-              </!--ul-->
+            </ul>
               
             <input class="btn btn-outline-light" type="submit" value="Cerca"/>
           </form>
           <section id="visibleOtherUser" v-if="viewOtherUser">
-          {{"Il tuo debito nei confronti di " + userToShow.firstName + " " + userToShow.lastName + ", alias " + userToShow.username + ", è:" + balanceToShow.toFixed(2) +"€"}}
+          <span class="colored-text">
+          {{"Il tuo debito nei confronti di " + userToShow.firstName + " " + userToShow.lastName + ", alias " + userToShow.username + ", è:" + balanceToShow.toFixed(2) +"€"}}</span>
             
             <button @click="viewOtherUser=false" class="btn-close"></button>
 
           </section>
         </section>
-        <section id="logout">
+        <section id="logout" class="aside-element">
           <button @click="logout" class="btn btn-outline-light">Logout</button>
         </section>
       </aside>
@@ -300,7 +284,7 @@
               <div class="card">
                 <div class="card-body">
           
-          <!-- Modulo di signup -->
+          
           <section id="loginSection">
             <h4>Login</h4>
           <form id="signin_form" @submit.prevent="login">

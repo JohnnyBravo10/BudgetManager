@@ -16,6 +16,7 @@ const app = createApp({
           
           viewNewExpenseForm: false,
           viewFilterForm: false,
+          viewSearchExpenseForm:false,
           
           viewExpenseDetail: false,  
           viewInfo: false,
@@ -199,11 +200,26 @@ const app = createApp({
         showNewExpenseForm() {
           this.viewNewExpenseForm=true;
           this.viewFilterForm=false;
+          this.viewSearchExpenseForm=false;
         },
 
         showFilterForm() {
           this.viewFilterForm=true;
           this.viewNewExpenseForm=false;
+          this.viewSearchExpenseForm=false;
+        },
+
+        hideFilterForm(){
+        this.viewFilterForm=false;
+        this.monthFilter= (new Date()).getMonth()+1;
+        this.yearFilter= (new Date()).getFullYear();
+        },
+
+        showSearchExpenseForm(){
+          this.viewSearchExpenseForm=true;
+          this.viewFilterForm=false;
+          this.viewNewExpenseForm=false;
+
         },
 
         async filterTransitions(){
@@ -230,8 +246,8 @@ const app = createApp({
 
             }
 
-        this.monthFilter= (new Date()).getMonth()+1;
-        this.yearFilter= (new Date()).getFullYear();
+        //this.monthFilter= (new Date()).getMonth()+1;
+        //this.yearFilter= (new Date()).getFullYear();
           
         },
 
@@ -357,6 +373,41 @@ const app = createApp({
         this.firstName="";
         this.lastName="";
 
+          
+        this.viewNewExpenseForm= false;
+        this.viewFilterForm= false;
+        this.viewSearchExpenseForm=false;
+          
+        this.viewExpenseDetail= false;  
+        this.viewInfo= false;
+        this.viewOtherUser= false;
+          
+
+        this.showAlert= false;
+
+        this.date= new Date();
+        this.description="";
+        this.category="";
+        this.totalCost=0;
+        this.parts= [{username:"", amount:0}];
+
+        this.monthFilter= (new Date()).getMonth()+1;
+        this.yearFilter= (new Date).getFullYear();
+
+        this.expenseQuery="";
+
+        this.expenseInDetail= null;
+
+        this.modifyExpense=false;
+
+        this.debts=[];
+
+        this.usernameToFind="";
+        this.userToShow= null;
+        this.balanceToShow= 0;
+
+        this.usernameSuggestions={};
+
 
       },
 
@@ -391,15 +442,13 @@ const app = createApp({
         lowQuery= query.toLowerCase()
         if (lowQuery.length){
         const response= await(await fetch(`/api/users/startsWith?q=${lowQuery}`)).json();
-        console.log("fetch eseguita, response ottenuta:", response)
         this.usernameSuggestions[id]=response.suggestions;
-        console.log("suggerimenti:", this.usernameSuggestions[id])
+        
         }
         else{
           this.usernameSuggestions[id]=[];
         }
-
-
+        console.log("suggerimenti:", this.usernameSuggestions[id])
       },
 
     },

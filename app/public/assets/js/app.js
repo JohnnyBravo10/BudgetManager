@@ -56,21 +56,6 @@ const app = createApp({
 
 
       mounted() {
-      /*
-        fetch('/api/budget')
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Errore di connessione al server');
-            }
-            return response.json();
-          })
-          .then(data => {
-            this.authenticated = data.authenticated;
-          })
-          .catch(error => {
-            console.error('Errore', error);
-            this.authenticated = false;
-          });*/
           
       },
       methods: {

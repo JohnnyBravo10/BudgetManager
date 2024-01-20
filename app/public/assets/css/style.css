@@ -2,9 +2,10 @@
 
 aside {
     grid-area: laterale;
-    background-color: #273E47;
+    background-color: #637081;
     padding: 20px;
     margin-left: 10px;
+    border-radius: 30px;
 }
 
 body {
@@ -21,69 +22,71 @@ table {
   width: 90%; 
 }
 
-  .home__title{
+.home__title{
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   font-weight: 700;
   margin: 30px;
-  }
+  color:white;
+}
 
 header{
-  background-color: #8F754F;
+  background-color: #061223;
   height: 90px;
+  margin-top:0;
+  margin-left: 0;
+  margin-right: 0;
   margin-bottom: 15px;
   position: relative;
 }
 
-  tr:nth-child(even) {
-    background-color: #D7B377; 
-  }
+tr:nth-child(even) {
+  background-color: #ccddee; 
+}
 
 
 
-  .card {
-    background-color: #273E47; 
-    border-radius: 30px;
-    color: white;
-    padding: 10px;
+.card {
+  background-color: #637081; 
+  border-radius: 30px;
+  color: white;
+  padding: 10px;
+}
 
-  }
+#main-portion{
+  grid-area: principale; 
+}
 
-  #main-portion{
-    grid-area: principale; 
-  }
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  height: 100%; 
+}
 
-  .container {
-      display: flex;
-      align-items: center;
-      justify-content: left;
-      height: 100%; 
-    }
-
-  .home__title {
-      margin: 0; 
-      margin-left: 5%;
-    }
+.home__title {
+  margin: 0; 
+  margin-left: 5%;
+}
   
-  .aside-element {
-      margin-bottom: 20px; 
-      
-    }
+.aside-element {
+  margin-bottom: 20px;       
+}
   
-  tr:nth-child(odd) {
-    background-color: #B39463; 
-  }
+tr:nth-child(odd) {
+  background-color: #a7b3c0; 
+}
 
-  input:not([type="submit"]) {
-    background-color:  #F5F0F6; 
-  }
+input:not([type="submit"]) {
+  background-color:  #F5F0F6; 
+}
 
-  .transparentBG{
-    background-color: #F5F0F6;
-  }
+.transparentBG{
+  background-color: #F5F0F6;
+}
 
-  #vediInfo{
-    background-color:  #F5F0F6;
-  }
+#vediInfo{
+  background-color:  #F5F0F6;
+}
 
 .accordion-body{
   background-color:  #F5F0F6;
@@ -109,19 +112,16 @@ header{
   display: grid;	
   grid-template-rows: 1fr 1fr 1fr 1fr;
   row-gap: 5px;
-
 }
 
 td, th {
-    padding: 5px;
-    
-  }
+  padding: 5px;    
+}
 
 #filterSpace{
   display: grid;	
   grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
   row-gap: 5px;
-
 }
 
 #newExpenseSpace {
@@ -131,7 +131,7 @@ td, th {
 }
 
 .colored-text {
-      color: #F5F0F6; 
+  color: #F5F0F6; 
 }
 
 button{
@@ -162,4 +162,14 @@ input{
 .autocomplete-list li:hover {
   background-color: #f1f1f1;
 }
+
+@media screen and (max-width: 600px) {
+  #authenticatedPage {
+    grid-template-columns: 1fr; /* Una sola colonna per schermi stretti */
+    grid-template-areas: 
+      "principale"
+      "laterale"; /* Gli elementi saranno uno sotto l'altro */
+  }
+
+
 

@@ -25,9 +25,10 @@
       <div id="main-portion">
           <!-- Tabella del budget -->
         <section id="transitionTableAndRelativeButtons" v-if="viewTransitionsTable">
-        <div id="transactionTable">
+        <div id="transactionTableAndTitle">
           <h3>Le tue spese</h3>
           Clicca su una per vederne i dettagli
+          <div id="transactionTable">
           <table id="transitions_table">
             <tr>
               <th>ID</th>
@@ -44,6 +45,7 @@
               <td>{{ formatDate(transition.date) }}</td>
             </tr>
           </table>
+          </div>
           </div>
           <div id="transactionButtons">
           <section id="expenseSearcher">

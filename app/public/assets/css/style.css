@@ -165,11 +165,12 @@ input{
 
 @media screen and (max-width: 600px) {
   #authenticatedPage {
-    grid-template-columns: 1fr; /* Una sola colonna per schermi stretti */
+    grid-template-columns: 1fr; 
     grid-template-areas: 
       "principale"
-      "laterale"; /* Gli elementi saranno uno sotto l'altro */
+      "laterale"; 
   }
+}
 
 
 
